@@ -67,8 +67,6 @@ pSommet* CreerArete(pSommet* sommet,int s1,int s2, int poids)
 // Ajouter l'arête entre les sommets s1 et s2 du graphe
 pSommet* CreerAreteV2(pArc* Arc,int s1,int s2, int poids,int indice)
 {
-    printf("a");
-
     pArc Newarc=(pArc)malloc(sizeof(struct Arc));
     Newarc->sommetS=s2;
     Newarc->sommetP=s1;
@@ -157,34 +155,36 @@ void Prim(pSommet* sommet){
 }
 
 
-void Tri_Selection(Graphe* graphe, pSommet* sommet, pArc* arc){
-    int min = pow(2,29)-1;
+void Tri_Selection(Graphe* graphe, pArc* Arc){
+    int min;
     int indice_min;
-    pSommet sommetTemp;
-    for(int i=0;i<graphe->ordre;i++){
-        min = sommet[i]->arc->valeur;
-        for(int j=i+1;j<graphe->ordre;j++){
+    pArc ArcTemp;
 
-            pArc arc=sommet[j]->arc;
-            while(arc!=NULL){
-                if(min<arc->valeur){
-                    min=arc->valeur;
-                    indice_min=j;
-                }
-                arc=arc->arc_suivant;
+    for(int i=0;i<graphe->taille;i++){
+        min = Arc[i]->valeur;
+        for(int j=i+1;j<graphe->taille;j++){
+            pArc arc=Arc[j];
+            //printf("\n%d",j);
+            //printf("\nmin : %d, arc->valeur : %d",min,arc->valeur);
+            if(min>arc->valeur){
+                min=arc->valeur;
+
+                indice_min=j;
             }
-
         }
-        sommetTemp=sommet[i];
-        sommet[i]=sommet[indice_min];
-        sommet[indice_min]=sommet[i];
 
-        printf(" %d ,",sommet[i]->arc->valeur);
+        ArcTemp=Arc[i];
+
+        Arc[i]=Arc[indice_min];
+
+        Arc[indice_min]=ArcTemp;
+
+        printf(" %d ,",Arc[i]->valeur);
     }
 }
 
 void Kruskal(Graphe* graphe,pSommet* sommet, pArc* Arc){
-    Tri_Selection(graphe, sommet,Arc);
+    Tri_Selection(graphe, Arc);
 }
 // créer le graphe
 Graphe* CreerGraphe(int ordre,int taille)
@@ -232,6 +232,7 @@ Graphe * lire_graphe(char * nomFichier)
     graphe=CreerGraphe(ordre,taille); // créer le graphe d'ordre sommets
     graphe->orientation=0;
     graphe->ordre=ordre;
+    graphe->taille=taille;
 
     for(int w=0; w<ordre; w++)
     {
@@ -250,10 +251,6 @@ Graphe * lire_graphe(char * nomFichier)
 
         if(!orientation)
             graphe->pSommet=CreerArete(graphe->pSommet, s2, s1, poids);
-    }
-    for (int i=0; i<taille; ++i)
-    {
-        printf("\n%d",graphe->pArc[i]->valeur);
     }
 
     return graphe;
