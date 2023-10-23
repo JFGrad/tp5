@@ -64,6 +64,22 @@ pSommet* CreerArete(pSommet* sommet,int s1,int s2, int poids)
     }
 }
 
+// Ajouter l'arête entre les sommets s1 et s2 du graphe
+pSommet* CreerAreteV2(pArc* Arc,int s1,int s2, int poids,int indice)
+{
+    printf("a");
+
+    pArc Newarc=(pArc)malloc(sizeof(struct Arc));
+    Newarc->sommetS=s2;
+    Newarc->sommetP=s1;
+    Newarc->valeur=poids;
+    Newarc->arc_suivant=NULL;
+    Arc[indice]=Newarc;
+
+    return Arc;
+
+
+}
 void Dijkstra(Graphe* graphe, pSommet* sommet,int D){
     int dmin;
     int chemin=0;
@@ -175,6 +191,7 @@ Graphe* CreerGraphe(int ordre,int taille)
 {
     Graphe * Newgraphe=(Graphe*)malloc(sizeof(Graphe));
     Newgraphe->pSommet = (pSommet*)malloc(ordre*sizeof(pSommet));
+
     Newgraphe->pArc = (pArc*)malloc(taille*sizeof(pArc));
 
     for(int i=0; i<ordre; i++)
@@ -184,6 +201,12 @@ Graphe* CreerGraphe(int ordre,int taille)
         Newgraphe->pSommet[i]->arc=NULL;
     }
 
+    for(int i=0; i<taille; i++)
+    {
+
+        Newgraphe->pArc[i]=(pArc)malloc(sizeof(struct Arc));
+
+    }
     return Newgraphe;
 }
 
@@ -205,11 +228,8 @@ Graphe * lire_graphe(char * nomFichier)
     }
 
     fscanf(ifs,"%d",&ordre);
-
-    graphe=CreerGraphe(ordre,taille); // créer le graphe d'ordre sommets
-
     fscanf(ifs,"%d",&taille);
-
+    graphe=CreerGraphe(ordre,taille); // créer le graphe d'ordre sommets
     graphe->orientation=0;
     graphe->ordre=ordre;
 
@@ -225,9 +245,15 @@ Graphe * lire_graphe(char * nomFichier)
         //printf("\n%d %d %d",s1,s2,poids);
 
         graphe->pSommet=CreerArete(graphe->pSommet, s1, s2, poids);
+        graphe->pArc=CreerAreteV2(graphe->pArc, s1, s2, poids,i);
+
 
         if(!orientation)
             graphe->pSommet=CreerArete(graphe->pSommet, s2, s1, poids);
+    }
+    for (int i=0; i<taille; ++i)
+    {
+        printf("\n%d",graphe->pArc[i]->valeur);
     }
 
     return graphe;
