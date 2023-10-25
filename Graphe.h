@@ -6,55 +6,52 @@
 
 
 /* Structure d'un arc*/
-struct Arc
-{
+struct Arc {
     int sommetS;
     int sommetP;
     // numéro de sommet d'un arc adjacent au sommet initial
     int valeur;
-    struct Arc* arc_suivant;
+    struct Arc *arc_suivant;
 };
 
 /* Alias de pointeur sur un Arc */
-typedef struct Arc* pArc;
+typedef struct Arc *pArc;
 
 /* Structure d'un sommet*/
-struct Sommet
-{
-    struct Arc* arc;
+struct Sommet {
+    struct Arc *arc;
     int valeur, pred;
     char couleur;
-    int distance,m,pd;
+    int distance, m, pd;
 
 };
 
 /* Alias de pointeur sur un Sommet */
-typedef struct Sommet* pSommet;
+typedef struct Sommet *pSommet;
 
 /* Alias d'un Graphe */
-typedef struct Graphe
-{
+typedef struct Graphe {
     int taille;
     int orientation;
     int ordre;
-    pSommet* pSommet;
-    pArc* pArc;
+    pSommet *pSommet;
+    pArc *pArc;
 } Graphe;
 
 // créer le graphe
-Graphe* CreerGraphe(int ordre,int taille);
+Graphe *CreerGraphe(int ordre, int taille);
 
 /* La construction du réseau peut se faire à partir d'un fichier dont le nom est passé en paramètre
 Le fichier contient : ordre, taille,orientation (0 ou 1)et liste des arcs */
-Graphe * lire_graphe(char * nomFichier);
+Graphe *lire_graphe(char *nomFichier);
 
 // Ajouter l'arête entre les sommets s1 et s2 du graphe
-pSommet* CreerArete(pSommet* sommet,int s1,int s2, int poids);
+pSommet *CreerArete(pSommet *sommet, int s1, int s2, int poids);
 
 /* affichage des successeurs du sommet num*/
-void afficher_successeurs(pSommet * sommet, int num);
+void afficher_successeurs(pSommet *sommet, int num);
 
 /*affichage du graphe avec les successeurs de chaque sommet */
-void graphe_afficher(Graphe* graphe);
+void graphe_afficher(Graphe *graphe);
 
 #endif // GRAPHE_H_INCLUDED
