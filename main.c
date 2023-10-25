@@ -159,7 +159,6 @@ void Tri_Selection(Graphe* graphe, pArc* Arc){
     int min;
     int indice_min;
     pArc ArcTemp;
-
     for(int i=0;i<graphe->taille;i++){
         min = Arc[i]->valeur;
         for(int j=i+1;j<graphe->taille;j++){
@@ -168,15 +167,12 @@ void Tri_Selection(Graphe* graphe, pArc* Arc){
             //printf("\nmin : %d, arc->valeur : %d",min,arc->valeur);
             if(min>arc->valeur){
                 min=arc->valeur;
-
                 indice_min=j;
             }
         }
 
         ArcTemp=Arc[i];
-
         Arc[i]=Arc[indice_min];
-
         Arc[indice_min]=ArcTemp;
 
         printf(" %d ,",Arc[i]->valeur);
@@ -184,7 +180,15 @@ void Tri_Selection(Graphe* graphe, pArc* Arc){
 }
 
 void Kruskal(Graphe* graphe,pSommet* sommet, pArc* Arc){
+    int poidsTot=0;
     Tri_Selection(graphe, Arc);
+    for(int i=0; i <graphe->taille;i++){
+        if(sommet[Arc[i]->sommetS]->pd != sommet[Arc[i]->sommetP]->pd){
+            sommet[Arc[i]->sommetP]->pd = sommet[Arc[i]->sommetS]->pd;
+            poidsTot=poidsTot+Arc[i]->valeur;
+            printf("\n (%d) ---- %d ---- (%d)",sommet[Arc[i]->sommetP]->valeur,Arc[i]->valeur,sommet[Arc[i]->sommetS]->valeur);
+        }
+    }
 }
 // créer le graphe
 Graphe* CreerGraphe(int ordre,int taille)
@@ -198,6 +202,7 @@ Graphe* CreerGraphe(int ordre,int taille)
     {
         Newgraphe->pSommet[i]=(pSommet)malloc(sizeof(struct Sommet));
         Newgraphe->pSommet[i]->valeur=i;
+        Newgraphe->pSommet[i]->pd=i;
         Newgraphe->pSommet[i]->arc=NULL;
     }
 

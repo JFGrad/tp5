@@ -24,7 +24,7 @@ struct Sommet
     struct Arc* arc;
     int valeur, pred;
     char couleur;
-    int distance,m;
+    int distance,m,pd;
 
 };
 
