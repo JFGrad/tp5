@@ -181,13 +181,37 @@ void Tri_Selection(Graphe* graphe, pArc* Arc){
 
 void Kruskal(Graphe* graphe,pSommet* sommet, pArc* Arc){
     int poidsTot=0;
+
     Tri_Selection(graphe, Arc);
+    for(int i=0; i <graphe->ordre;i++){
+         printf(" %d - %d |",sommet[Arc[i]->sommetP]->pd,sommet[Arc[i]->sommetS]->pd);
+        printf("Sommet %d : %d \n ",sommet[i]->valeur,sommet[i]->pd);
+
+    }
     for(int i=0; i <graphe->taille;i++){
         if(sommet[Arc[i]->sommetS]->pd != sommet[Arc[i]->sommetP]->pd){
+            for(int j=0; j <graphe->ordre;j++){
+
+                if(sommet[j]->pd==sommet[Arc[i]->sommetS]->pd || sommet[j]->pd==sommet[Arc[i]->sommetP]->pd){
+                    sommet[j]->pd=sommet[Arc[i]->sommetS]->pd;
+                }
+            }
             sommet[Arc[i]->sommetP]->pd = sommet[Arc[i]->sommetS]->pd;
             poidsTot=poidsTot+Arc[i]->valeur;
+            for(int j=0; j <graphe->ordre;j++){
+
+                if(sommet[j]->pd==sommet[Arc[i]->sommetS]->pd){
+                    sommet[j]->pd=sommet[Arc[i]->sommetS]->pd;
+                }
+                printf("Sommet %d : %d \n ",sommet[j]->valeur,sommet[j]->pd);
+
+            }
             printf("\n (%d) ---- %d ---- (%d)",sommet[Arc[i]->sommetP]->valeur,Arc[i]->valeur,sommet[Arc[i]->sommetS]->valeur);
+            printf("\n");
+
+            printf("\n");
         }
+
     }
 }
 // créer le graphe
