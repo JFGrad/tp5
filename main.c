@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include "math.h"
 
-/* affichage des successeurs du sommet num*/
+// affichage des successeurs du sommet num
 void afficher_successeurs(pSommet *sommet, int num) {
 
     printf(" sommet %d :\n", num);
@@ -17,7 +17,7 @@ void afficher_successeurs(pSommet *sommet, int num) {
     }
 }
 
-// Ajouter l'arête entre les sommets s1 et s2 du graphe
+/ Ajouter l'arête entre les sommets s1 et s2 du graphe
 pSommet *CreerArete(pSommet *sommet, int s1, int s2, int poids) {
 
     if (sommet[s1]->arc == NULL) {
@@ -67,6 +67,107 @@ pSommet *CreerAreteV2(pArc *Arc, int s1, int s2, int poids, int indice) {
 
     return Arc;
 
+
+}
+
+void Tri_Selection(Graphe *graphe, pArc *Arc) {
+    int min;
+    int indice_min;
+    pArc ArcTemp;
+    for (int i = 0; i < graphe->taille; i++) {
+        min = Arc[i]->valeur;
+        for (int j = i + 1; j < graphe->taille; j++) {
+            pArc arc = Arc[j];
+            if (min > arc->valeur) {
+                min = arc->valeur;
+                indice_min = j;
+            }
+        }
+
+        ArcTemp = Arc[i];
+        Arc[i] = Arc[indice_min];
+        Arc[indice_min] = ArcTemp;
+
+    }
+}
+
+// créer le graphe
+Graphe *CreerGraphe(int ordre, int taille) {
+    Graphe *Newgraphe = (Graphe *) malloc(sizeof(Graphe));
+    Newgraphe->pSommet = (pSommet *) malloc(ordre * sizeof(pSommet));
+
+    Newgraphe->pArc = (pArc *) malloc(taille * sizeof(pArc));
+
+    for (int i = 0; i < ordre; i++) {
+        Newgraphe->pSommet[i] = (pSommet) malloc(sizeof(struct Sommet));
+        Newgraphe->pSommet[i]->valeur = i;
+        Newgraphe->pSommet[i]->pd = i;
+        Newgraphe->pSommet[i]->arc = NULL;
+    }
+
+    for (int i = 0; i < taille; i++) {
+
+        Newgraphe->pArc[i] = (pArc) malloc(sizeof(struct Arc));
+
+    }
+    return Newgraphe;
+}
+
+// La construction du réseau peut se faire à partir d'un fichier dont le nom est passé en paramètre
+// Le fichier contient : ordre, taille,orientation (0 ou 1) et liste des arcs
+Graphe *lire_graphe(char *nomFichier) {
+    Graphe *graphe;
+    FILE *ifs = fopen(nomFichier, "r");
+    int taille, orientation, ordre, s1, s2, poids;
+    if (!ifs) {
+        printf("Erreur de lecture fichier\n");
+        exit(-1);
+    }
+
+    fscanf(ifs, "%d", &ordre);
+    fscanf(ifs, "%d", &taille);
+    graphe = CreerGraphe(ordre, taille); // créer le graphe d'ordre sommets
+    graphe->orientation = 0;
+    graphe->ordre = ordre;
+    graphe->taille = taille;
+
+    for (int w = 0; w < ordre; w++) {
+        fscanf(ifs, "%d", &s1);
+    }
+
+    // créer les arêtes du graphe
+    for (int i = 0; i < taille; ++i) {
+        fscanf(ifs, "%d%d%d", &s1, &s2, &poids);
+        //printf("\n%d %d %d",s1,s2,poids);
+
+        graphe->pSommet = CreerArete(graphe->pSommet, s1, s2, poids);
+        graphe->pArc = CreerAreteV2(graphe->pArc, s1, s2, poids, i);
+
+
+        if (!orientation)
+            graphe->pSommet = CreerArete(graphe->pSommet, s2, s1, poids);
+    }
+
+    return graphe;
+}
+
+//affichage du graphe avec les successeurs de chaque sommet
+void graphe_afficher(Graphe *graphe) {
+    printf("graphe\n");
+
+    if (graphe->orientation)
+        printf("oriente\n");
+    else
+        printf("non oriente\n");
+
+    printf("ordre = %d\n", graphe->ordre);
+
+    printf("listes d'adjacence :\n");
+
+    for (int i = 0; i < graphe->ordre; i++) {
+        afficher_successeurs(graphe->pSommet, i);
+        printf("\n");
+    }
 
 }
 
@@ -147,42 +248,26 @@ void Prim(pSommet *sommet) {
 
 }
 
-
-void Tri_Selection(Graphe *graphe, pArc *Arc) {
-    int min;
-    int indice_min;
-    pArc ArcTemp;
-    for (int i = 0; i < graphe->taille; i++) {
-        min = Arc[i]->valeur;
-        for (int j = i + 1; j < graphe->taille; j++) {
-            pArc arc = Arc[j];
-            if (min > arc->valeur) {
-                min = arc->valeur;
-                indice_min = j;
-            }
-        }
-
-        ArcTemp = Arc[i];
-        Arc[i] = Arc[indice_min];
-        Arc[indice_min] = ArcTemp;
-
-        printf(" %d ,", Arc[i]->valeur);
-    }
-}
-
 void Kruskal(Graphe *graphe, pSommet *sommet, pArc *Arc) {
-    int poidsTot = 0;
-    int pdp;
+    int poidsTot = 0; // Initialise le poids total
+    int pdp; // Variable pour stocker le poids instantané du sommet P.
+
+    // Trie les arêtes du graphe par ordre croissant de poids.
     Tri_Selection(graphe, Arc);
+
+    // Parcourt toutes les arêtes triées.
     for (int i = 0; i < graphe->taille; i++) {
         if (sommet[Arc[i]->sommetS]->pd != sommet[Arc[i]->sommetP]->pd) {
             pdp = sommet[Arc[i]->sommetP]->pd;
+
             sommet[Arc[i]->sommetP]->pd = sommet[Arc[i]->sommetS]->pd;
-            poidsTot = poidsTot + Arc[i]->valeur;
+
+            poidsTot = poidsTot + Arc[i]->valeur; // Ajoute le poids de l'arête au poids total.
             printf("\n (%d) ---- %d ---- (%d)", sommet[Arc[i]->sommetP]->valeur, Arc[i]->valeur,
                    sommet[Arc[i]->sommetS]->valeur);
-            for (int j = 0; j < graphe->ordre; j++) {
 
+            // Met à jour les poids des autres sommets
+            for (int j = 0; j < graphe->ordre; j++) {
                 if (sommet[j]->pd == pdp) {
                     sommet[j]->pd = sommet[Arc[i]->sommetS]->pd;
                 }
@@ -192,111 +277,25 @@ void Kruskal(Graphe *graphe, pSommet *sommet, pArc *Arc) {
     printf("\nPoids total du graphe : %d\n", poidsTot);
 }
 
-// créer le graphe
-Graphe *CreerGraphe(int ordre, int taille) {
-    Graphe *Newgraphe = (Graphe *) malloc(sizeof(Graphe));
-    Newgraphe->pSommet = (pSommet *) malloc(ordre * sizeof(pSommet));
-
-    Newgraphe->pArc = (pArc *) malloc(taille * sizeof(pArc));
-
-    for (int i = 0; i < ordre; i++) {
-        Newgraphe->pSommet[i] = (pSommet) malloc(sizeof(struct Sommet));
-        Newgraphe->pSommet[i]->valeur = i;
-        Newgraphe->pSommet[i]->pd = i;
-        Newgraphe->pSommet[i]->arc = NULL;
-    }
-
-    for (int i = 0; i < taille; i++) {
-
-        Newgraphe->pArc[i] = (pArc) malloc(sizeof(struct Arc));
-
-    }
-    return Newgraphe;
-}
-
-
-/* La construction du réseau peut se faire à partir d'un fichier dont le nom est passé en paramètre
-Le fichier contient : ordre, taille,orientation (0 ou 1) et liste des arcs */
-Graphe *lire_graphe(char *nomFichier) {
-    Graphe *graphe;
-    FILE *ifs = fopen(nomFichier, "r");
-    int taille, orientation, ordre, s1, s2, poids;
-
-    printf("%s TRUC", nomFichier);
-
-    if (!ifs) {
-        printf("Erreur de lecture fichier\n");
-        exit(-1);
-    }
-
-    fscanf(ifs, "%d", &ordre);
-    fscanf(ifs, "%d", &taille);
-    graphe = CreerGraphe(ordre, taille); // créer le graphe d'ordre sommets
-    graphe->orientation = 0;
-    graphe->ordre = ordre;
-    graphe->taille = taille;
-
-    for (int w = 0; w < ordre; w++) {
-        fscanf(ifs, "%d", &s1);
-    }
-
-    // créer les arêtes du graphe
-    for (int i = 0; i < taille; ++i) {
-        fscanf(ifs, "%d%d%d", &s1, &s2, &poids);
-        //printf("\n%d %d %d",s1,s2,poids);
-
-        graphe->pSommet = CreerArete(graphe->pSommet, s1, s2, poids);
-        graphe->pArc = CreerAreteV2(graphe->pArc, s1, s2, poids, i);
-
-
-        if (!orientation)
-            graphe->pSommet = CreerArete(graphe->pSommet, s2, s1, poids);
-    }
-
-    return graphe;
-}
-
-
-/*affichage du graphe avec les successeurs de chaque sommet */
-void graphe_afficher(Graphe *graphe) {
-    printf("graphe\n");
-
-    if (graphe->orientation)
-        printf("oriente\n");
-    else
-        printf("non oriente\n");
-
-    printf("ordre = %d\n", graphe->ordre);
-
-    printf("listes d'adjacence :\n");
-
-    for (int i = 0; i < graphe->ordre; i++) {
-        afficher_successeurs(graphe->pSommet, i);
-        printf("\n");
-    }
-
-}
-
 
 int main() {
     Graphe *g;
 
     char nom_fichier[50];
+    int depart;
+    int rep;
 
-    printf("entrer le nom du fichier du labyrinthe:");
+    printf("Entrer le nom du fichier à traiter :");
     gets(nom_fichier);
 
     g = lire_graphe(nom_fichier);
 
-    ///graphe_afficher(g);
+    //graphe_afficher(g);
 
-    int depart;
-    int rep;
-
-    printf("La liste d'arrete sur laquelle on se base s'appelle -oriente.txt-" \n
-    ");
+    printf("La liste d'arrete sur laquelle on se base s'appelle -oriente.txt-\n");
     printf("Voulez vous utliser l'algorithme de Kruskal(1) ou Prim(2) \n ");
     scanf("%d", &rep);
+
     if (rep == 1) {
         printf("Vous avez choisi l'algorithme de Kruskal \n");
         Kruskal(g, g->pSommet, g->pArc);
